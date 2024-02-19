@@ -91,9 +91,9 @@ if isempty(SS_INIT_DONE),
 
     % Gradient/timing parameters
     %
-    SS_MXG = 5.0;			% G/cm
+    SS_MXG = 76.1;			% G/cm
     SS_MXS = 20;			% G/cm/ms 
-    SS_TS = 4e-6;			% Sampling time (s) 
+    SS_TS = 8e-6;			% Sampling time (s) 
 
     % RF parameters
     %
