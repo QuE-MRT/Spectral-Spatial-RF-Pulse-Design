@@ -115,6 +115,9 @@ function options = ss_opt(new_options)
 	 case 'Slew Penalty', 
 	  SS_SLEW_PENALTY = optparm;
 
+     case 'Sample Time'
+      SS_TS = optparm;
+
      otherwise
 	  SS_INIT_DONE = [];
 	  ss_globals;
