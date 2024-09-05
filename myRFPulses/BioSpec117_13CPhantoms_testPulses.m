@@ -18,60 +18,66 @@
 % Reset SS package globals
 %
 clear
-ss_opt([]);
-ss_globals;
 clc
 
-% multiband pulse
-fprintf(1, '************************************************************\n')
-fprintf(1, 'Here''s a C13 multiband excitation pulse example, for [1-13C]pyr+13C-urea\n');
-fprintf(1, 'dynamic MR spectroscopic or chemical shift imaging on a 3T clinical system\n');
-fprintf(1, '************************************************************\n')
-
+% Reset All Options
 ss_opt([]);
+ss_globals;
+
+% Set new Options 
+opt = ss_opt({'Nucleus', 'Carbon', ...
+	      'Max Duration', 25e-3,...
+          'Sample Time', 8e-6, ...
+          'Num Lobe Iters', 10, ...
+	      'Max B1', 1.6, ...
+	      'Num Fs Test', 100, ...
+	      'Verse Fraction', 0.7, ...
+	      'SLR', 0, ...
+	      'B1 Verse', 0, ...
+	      'Min Order', 0,...
+	      'Spect Correct', 0,...
+          'Max Grad', 76.185 ,...
+          'Max Slew', 634.875});
 
 % GENERAL PULSE PARAMETERS
 ss_type = 'EP Whole';  % Echo-planar design
 ptype = 'ex';  % excitation pulse
-opt = ss_opt({'Nucleus', 'Carbon', ...
-	      'Max Duration', 25e-3});
-
-% force pulse design to optimize for center of frequency specification
-fctr = 0;  
 
 % SPECTRAL PULSE PARAMETERS 
 B0 = 11.7e4; % G
-df = 0.5e-6 * B0 * SS_GAMMA; % 0.5 ppm = gamma_C13 * B0 * 0.5e-6
+c13ppm = 1e-6 * B0 * SS_GAMMA; % 1 ppm = gamma_C13 * B0 * 0.5e-6
 % metabolite			frequency (Hz)		freq bandwidth (Hz)		flip angle (deg)	allowed ripple
-% mets(1).name = 'bic'; 	mets(1).f = -1160; 	mets(1).df = 1.5*df; 	    mets(1).ang = 10; 	mets(1).d = .05;
-% mets(2).name = 'urea'; 	mets(2).f = -935; 	mets(2).df = 1.5*df; 		mets(2).ang = 0; 	mets(2).d = .05;
-% mets(3).name = 'pyr'; 	mets(3).f = 0;  	mets(3).df = 1.5*df; 	    mets(3).ang = 0; 	mets(3).d = .05;
-% mets(4).name = 'ala'; 	mets(4).f = 720; 	mets(4).df = 1.5*df;	    mets(4).ang = 0; 	mets(4).d = .05;
-% mets(5).name = 'lac'; 	mets(5).f = 1535; 	mets(5).df = 1.5*df;        mets(5).ang = 0; 	mets(5).d = .05;
-mets(1).name = 'ure'; 	mets(1).f = -945; 	mets(1).df = 2*df; 	    mets(1).ang = 0; 	mets(1).d = .05;
-mets(2).name = 'pyr'; 	mets(2).f = 0; 	    mets(2).df = 2*df; 		mets(2).ang = 10; 	mets(2).d = .05;
-mets(3).name = 'ala'; 	mets(3).f = 710;  	mets(3).df = 2*df; 	    mets(3).ang = 0; 	mets(3).d = .05;
-mets(4).name = 'la1c'; 	mets(4).f = 1515; 	mets(4).df = 2*df; 		mets(4).ang = 60; 	mets(4).d = .05;
-mets(5).name = 'bic';   mets(5).f = -1155;  mets(5).df = 2*df;      mets(5).ang = 0;    mets(5).d = .05;
+mets(1).name = 'passband';      mets(1).f = 0;          mets(1).df = 1*c13ppm;      mets(1).ang = 90; 	mets(1).d = .01;
+mets(2).name = 'stopband1'; 	mets(2).f = 9*c13ppm; 	mets(2).df = 5*c13ppm; 		mets(2).ang = 0; 	mets(2).d = .005;
+mets(3).name = 'stopband2'; 	mets(3).f = -9*c13ppm;  mets(3).df = 5*c13ppm; 		mets(3).ang = 0; 	mets(3).d = .005;
+
+% mets(1).name = 'bic';   mets(1).f = -1160;  mets(1).df = 1*df;      mets(1).ang = 0;    mets(1).d = 0.05;
+% mets(2).name = 'ure'; 	mets(2).f = -940; 	mets(2).df = 1*df; 	    mets(2).ang = 0; 	mets(2).d = 0.05;
+% mets(3).name = 'pyr'; 	mets(3).f = 0; 	    mets(3).df = 1*df; 		mets(3).ang = 0; 	mets(3).d = 0.05;
+% mets(4).name = 'ala'; 	mets(4).f = 710;  	mets(4).df = 1*df; 	    mets(4).ang = 0; 	mets(4).d = 0.05;
+% mets(5).name = 'lac'; 	mets(5).f = 1535; 	mets(5).df = 1*df; 		mets(5).ang = 90; 	mets(5).d = 0.05;
 
 
+% force pulse design to optimize for center of frequency specification
+fctr = 0;  
 % create vectors of angles, ripples, and band edges for input to pulse design
 [fspec, a_angs, d] = create_freq_specs(mets, fctr);
 s_ftype = 'min';  % minimimum-phase spectral filter
 
 % SPATIAL PULSE PARAMETERS
 z_ftype = 'ls';  % least-squares filter design
-z_d1 = 0.05;  z_d2 = 0.05;  % slice profile pass and stop-band ripples, respectively
+z_d1 = 0.05;  
+z_d2 = 0.05;  % slice profile pass and stop-band ripples, respectively
 
 % multiband pulse - thicker slice
-z_thk = 1.5;  % thickness (cm)
-z_tb = 2; % time-bandwidth, proportional to profile sharpness
+z_thk = 2;  % thickness (cm)
+z_tb = 3; % time-bandwidth, proportional to profile sharpness
 
 % DESIGN THE PULSE!
 [g,rf,fs,z,f,mxy] = ...
     ss_design(z_thk, z_tb, [z_d1 z_d2], fspec, a_angs, d, ptype, ...
 	      z_ftype, s_ftype, ss_type, fctr);
-set(gcf,'Name', '[1-13C]pyr+13C-urea Multiband - slab');
+set(gcf,'Name', 'singleband_RF_pulse');
 
 % for saving pulses:
 % ss_save(g,rf,max(a_angs),z_thk, [], 'GE', fspec, a_angs, root_fname);
@@ -82,7 +88,7 @@ max_rfuT = 100*max(abs(rf));
 bpB1uT   = 1 / (SS_GAMMA * 4e-5);       % B1 for 1 ms, 90 deg bp [uT]
 powerFactor = (max_rfuT / bpB1uT)^2;    % RF power is propto B1^2
 rfn = 100 * rf / max_rfuT;
-sInt = sqrt( sum(real(rfn))^2 + sum(imag(rfn))^2) / numel(rfn);
+sInt = sqrt( sum(real(rfn))^2 + sum(imag(rfn))^2) / numel(  rfn);
 pInt = rfn * rfn' / numel(rfn);
 length_ms = 1e3 * SS_TS * numel(rfn);
 
@@ -96,11 +102,12 @@ nSlices = numel(slOffs);
 
 curTime = clock;
 curTime(6) = round(curTime(6));
-filName = sprintf('SpSp_13C_11p7T_%s%d_%s%d_%s%d_%s%d_%dmm_%d%02d%02d',...
+filName = sprintf('SpSp_13C_11p7T_%s%d_%s%d_%s%d_%s%d_%s%d_%dmm_%d%02d%02d',...
     mets(1).name, mets(1).ang, ...
     mets(2).name, mets(2).ang, ...
     mets(3).name, mets(3).ang, ...
     mets(4).name, mets(4).ang, ...
+    mets(5).name, mets(5).ang, ...
     round(10*z_thk),curTime(1:3));
 
 waveDir = fullfile(pwd,'wave');
@@ -138,6 +145,7 @@ jcampHeader = {
 %
 if ~exist(waveDir,'dir'), mkdir(waveDir); end
 rfFile = fopen(fullfile(waveDir,sprintf('%s.exc',filName)),'w');
+
 for ii=1:numel(jcampHeader)
     fprintf(rfFile,'%s\n',jcampHeader{ii});
 end
