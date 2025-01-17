@@ -1,53 +1,61 @@
+% MATLAB Script: Visualize Spatial Spectral (SPSP) RF Pulse
+%
+% Description:
+% Alternative visualization to ss_plot()
+%
+% Author: Christoph A. Müller
+% Date: 17.01.2025
+% Version: 1.0
+%
+% Usage:
+% 1. Load RFstruct
+% 2. Run the script to generate plots and visualize the pulse.
+
+
 %% create figure
 hfig = figure(123);
 clf(hfig)
-
 set(hfig, 'color',  'w')
 
-% 3D plot g, rf , t
-
-
+% plot pulse amplitude over gradient 0th moment, i.e. over k-space
+% coordinate
 subplot(1,3,1)
-surf(f,z,abs(mxy), 'EdgeColor','flat')
-xlabel('Frequency (Hz)')
-ylabel('Position (cm)')
-zlabel('Magnitude M_{xy}')
-set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
-    'FontName', 'MontSerrat',...
-    'FontSize',9)
+gradient0thmoment = cumsum(RFstruct.shapes.shape_grad_mTm);
 
-subplot(1,3,2)
-surf(f,z,angle(mxy), 'EdgeColor','flat')
-xlabel('Frequency (Hz)')
-ylabel('Position (cm)')
-zlabel('Phase M_{xy}')
-
-set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
-    'FontName', 'MontSerrat',...
-    'FontSize',9)
-
-
-
-%
-subplot(1,3,3)
-
-t = (0:1:numel(g)-1) .* opt{4,2} .* 1e3;
-for n = 1:numel(g)
-    g0(n) = sum(g(1:n));
-end
-
-
-plot3(t, g0, real(rf))
+plot3(RFstruct.shapes.shape_timesamples_us, ...
+    gradient0thmoment, ...
+    real(RFstruct.shapes.shape_rf_uT))
 hold on
-plot3(t, g0, imag(rf))
-% plot3(t, g0, abs(rf))
+plot3(RFstruct.shapes.shape_timesamples_us, ...
+    gradient0thmoment, ...
+    imag(RFstruct.shapes.shape_rf_uT))
 
 set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
     'FontName', 'MontSerrat',...
     'FontSize',9)
-
-xlabel('Time (ms)')
+title('3D representation of Pulse envelope on kspace-time trajectory')
+xlabel('Time (s)')
 ylabel('Exc. Gradient 0th Moment')
 zlabel('RF Envelope (Gauss)')
-pause(0.5)
+
+subplot(1,3,2)
+plot(RFstruct.shapes.shape_timesamples_us, ...
+    real(RFstruct.shapes.shape_rf_uT))
+title('Temporal RF envelope representation')
+xlabel('Time (s)')
+ylabel('RF Envelope (Gauss)')
+set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
+    'FontName', 'MontSerrat',...
+    'FontSize',9)
+
+subplot(1,3,3)
+plot(gradient0thmoment, ...
+    real(RFstruct.shapes.shape_rf_uT))
+title('Spatial kSpace RF envelope representation')
+xlabel('Exc. Gradient 0th Moment')
+ylabel('RF Envelope (Gauss)')
+set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
+    'FontName', 'MontSerrat',...
+    'FontSize',9)
+
 
