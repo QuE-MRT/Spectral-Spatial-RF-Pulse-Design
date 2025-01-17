@@ -1,5 +1,21 @@
-%% convert RF-struct into JSON dictionary 
-% for readin in gammaSTAR
+% MATLAB Script: Export Spatial Spectral Pulse Shapes to JSON Dictionary
+%
+% Description:
+% This script processes spatial spectral pulse shapes and exports them
+% into a JSON dictionary file. 
+%
+% Features:
+% - Converts pulse shape data into a structured JSON format.
+% - Customizable for specific dictionary key-value mappings.
+%
+% Author: Christoph A. Müller
+% Date: 17.01.2025
+% Version: 1.0
+%
+% Usage:
+% 1. Run pulse generate script and create_RF_struct.m first
+% 2. Run the script in MATLAB.
+% 3. The JSON file will be saved in the specified output directory.
 
 % Create JSON file name
 filename_json = [RFstruct.filename, '.json']
