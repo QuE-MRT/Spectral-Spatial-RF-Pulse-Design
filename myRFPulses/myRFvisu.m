@@ -26,7 +26,7 @@ set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
     'FontName', 'MontSerrat',...
     'FontSize',9)
 
-colormap('viridis')
+
 
 %
 subplot(1,3,3)
@@ -37,13 +37,10 @@ for n = 1:numel(g)
 end
 
 
-plot3(t, g0, real(rf), ...
-    'Color', NVisionColor('darkMint'))
+plot3(t, g0, real(rf))
 hold on
-plot3(t, g0, imag(rf), ...
-    'Color', NVisionColor('charCoal'))
-% plot3(t, g0, abs(rf), ...
-%     'Color', NVisionColor('charCoal'))
+plot3(t, g0, imag(rf))
+% plot3(t, g0, abs(rf))
 
 set(gca, 'PlotBoxAspectRatio',[1,1,1], ...
     'FontName', 'MontSerrat',...

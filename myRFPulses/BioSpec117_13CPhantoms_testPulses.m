@@ -22,19 +22,39 @@ ss_opt([]);
 ss_globals;
 clc
 
-% multiband pulse
-fprintf(1, '************************************************************\n')
-fprintf(1, 'Here''s a C13 multiband excitation pulse example, for [1-13C]pyr+13C-urea\n');
-fprintf(1, 'dynamic MR spectroscopic or chemical shift imaging on a 3T clinical system\n');
-fprintf(1, '************************************************************\n')
-
-ss_opt([]);
-
 % GENERAL PULSE PARAMETERS
 ss_type = 'EP Whole';  % Echo-planar design
 ptype = 'ex';  % excitation pulse
+
+% Set new Options 
 opt = ss_opt({'Nucleus', 'Carbon', ...
-	      'Max Duration', 25e-3});
+	      'Max Duration', 25e-3,...
+          'Sample Time', 82e-6, ...
+          'Num Lobe Iters', 10, ...
+	      'Max B1', 1.6, ...
+	      'Num Fs Test', 100, ...
+	      'Verse Fraction', 0.7, ...
+	      'SLR', 0, ...
+	      'B1 Verse', 0, ...
+	      'Min Order', 0,...
+	      'Spect Correct', 0,...
+          'Max Grad', 76.185 ,...
+          'Max Slew', 634.875});
+
+% SPECTRAL PULSE PARAMETERS 
+B0 = 3e4; % G
+c13ppm = 1e-6 * B0 * SS_GAMMA; % 1 ppm = gamma_C13 * B0 * 0.5e-6
+% metabolite			frequency (Hz)		freq bandwidth (Hz)		flip angle (deg)	allowed ripple
+mets(1).name = 'passband';      mets(1).f = 0;          mets(1).df = 1*c13ppm;      mets(1).ang = 90; 	mets(1).d = .01;
+mets(2).name = 'stopband1'; 	mets(2).f = 9*c13ppm; 	mets(2).df = 5*c13ppm; 		mets(2).ang = 0; 	mets(2).d = .005;
+mets(3).name = 'stopband2'; 	mets(3).f = -9*c13ppm;  mets(3).df = 5*c13ppm; 		mets(3).ang = 0; 	mets(3).d = .005;
+
+% mets(1).name = 'bic';   mets(1).f = -1160;  mets(1).df = 1*df;      mets(1).ang = 0;    mets(1).d = 0.05;
+% mets(2).name = 'ure'; 	mets(2).f = -940; 	mets(2).df = 1*df; 	    mets(2).ang = 0; 	mets(2).d = 0.05;
+% mets(3).name = 'pyr'; 	mets(3).f = 0; 	    mets(3).df = 1*df; 		mets(3).ang = 0; 	mets(3).d = 0.05;
+% mets(4).name = 'ala'; 	mets(4).f = 710;  	mets(4).df = 1*df; 	    mets(4).ang = 0; 	mets(4).d = 0.05;
+% mets(5).name = 'lac'; 	mets(5).f = 1535; 	mets(5).df = 1*df; 		mets(5).ang = 90; 	mets(5).d = 0.05;
+
 
 % force pulse design to optimize for center of frequency specification
 fctr = 0;  
