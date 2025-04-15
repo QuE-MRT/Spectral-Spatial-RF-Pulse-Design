@@ -18,7 +18,7 @@
 % 3. The JSON file will be saved in the specified output directory.
 
 % Create JSON file name
-filename_json = [RFstruct.filename, '.json']
+filename_json = [RFstruct.filename, '.json'];
 
 % create JSONstruct
 JSONstruct.filename = RFstruct.filename;
@@ -26,8 +26,8 @@ JSONstruct.desc = RFstruct.desc;
 JSONstruct.rf_asym = 0.5;
 JSONstruct.rf_dur_fix.dur = RFstruct.shapes.shape_duration_us; % [us]
 JSONstruct.rf_dur_fix.fix = true; 
-JSONstruct.rf_abs = RFstruct.shapes.shape_rf_magnitude; % [uT]
-JSONstruct.rf_phs = RFstruct.shapes.shape_rf_phase_degree; % [rad]
+JSONstruct.rf_abs = RFstruct.shapes.shape_rf_magnitude / 100 * RFstruct.shapes.shape_rf_max_uT; % [uT]
+JSONstruct.rf_phs = deg2rad(RFstruct.shapes.shape_rf_phase_degree); % [rad]
 JSONstruct.gradz_v = RFstruct.shapes.shape_grad_mTm; % [mT/m]
 JSONstruct.gradz_t = RFstruct.shapes.shape_timesamples_us; % [us]
     
