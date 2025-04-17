@@ -211,7 +211,7 @@ end
             fprintf(fid,'# Isodelay = %d us\n',round(isodelay*1e6));
             fprintf(fid,'# Resolution = %d us\n', SS_TS*1e6);
             fprintf(fid,'# Flip = %.2f degrees\n',ang*180/pi);
-            fprintf(fid,'# Max B1 = %.4f Gauss\n',max_b1);
+            fprintf(fid,'# Max B1 = %.4f Gauss\n',rfstat.maxB1_G);
              if (nargin > 6)
                 for b = 1:length(a_angs)
                    fprintf(fid,'# Band %d: [%.2f, %.2f] Hz, %.2f degree flip\n', ...
