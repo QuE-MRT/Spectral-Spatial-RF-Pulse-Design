@@ -20,8 +20,7 @@ ss_opt([]);
 ss_globals;
 clc
 
-%%
-% GENERAL PULSE PARAMETERS
+%% GENERAL PULSE PARAMETERS
 SS_G_TYPE = 'EP Whole';  % Echo-planar design
 SS_RF_TYPE = 'ex';  % excitation pulse
 SS_OPTs = ss_opt({...
@@ -47,7 +46,6 @@ mets(3).name = 'stopband'; 	mets(3).f = -250; 	mets(3).df = 175; 		mets(3).ang =
 [f_band_edges_Hz, f_band_alpha_Rad, f_band_ripple] = create_freq_specs(mets, f_center_Hz);
 SS_FILTER_TYPE = 'min';  % minimimum-phase spectral filter
 
-%%
 % SPATIAL PULSE PARAMETERS
 z_filter_type = 'ls';  % least-squares filter design
 z_thickness_cm = 1;  % thickness (cm)
@@ -64,6 +62,7 @@ z_stop_ripple = 0.01;  % slice profile pass and stop-band ripples, respectively
 set(gcf,'Name', '13C Ultimate SPSP Pulse');
 
 
+%%
 % Pulse Name
 filename = '13C_Ultimate_SPSP_Pulse_QuEMRT';
 fprintf('\n\nFilename: %s', filename);
@@ -104,11 +103,43 @@ shape_rf_magnitude = abs(shape_rf_normalized);
 shape_rf_phase_degree = 180 + angle(shape_rf_normalized) * 180/pi;
 shape_grad_mTm = shape_grad_Gausscm * 10;
 
-%% Save fig and mat file
-save(filename)
-savefig(filename)
+%% Create output folder
 
-%% save as VARIAN RF pulse files
+% Define the name of the main output folder
+outputFolderName = 'output';
+
+% Get the current date in YYYY_mm_dd format using datetime
+currentDate = string(datetime('now', 'Format', 'yyyy_MM_dd'));
+
+% Construct the name of the subfolder
+subfolderName = sprintf('%s_%s', currentDate, filename);
+
+% Construct the full path to the output folder
+outputPath = fullfile(pwd, outputFolderName);
+
+% Construct the full path to the subfolder
+subfolderPath = fullfile(outputPath, subfolderName);
+
+% Check if the output folder exists, and create it if it doesn't
+if ~exist(outputPath, 'dir')
+    mkdir(outputPath);
+    disp(['Created output folder: ', outputPath]);
+end
+
+% Check if the subfolder exists, and create it if it doesn't
+if ~exist(subfolderPath, 'dir')
+    mkdir(subfolderPath);
+    disp(['Created subfolder: ', subfolderPath]);
+else
+    disp(['Subfolder already exists: ', subfolderPath]);
+end
+
+clear("subfolderName", "outputFolderName", "outputPath")
+
+%% Save complete mat file
+save(fullfile(subfolderPath, [filename, '.mat']))
+
+%% save as VARIAN RF pulse files for Pulseq X-EPI sequence
 ss_save(shape_grad_Gausscm, ...
         shape_rf_Gauss, ...
         max(f_band_alpha_Rad), ...
@@ -117,14 +148,14 @@ ss_save(shape_grad_Gausscm, ...
         'Varian', ...
         f_band_edges_Hz, ...
         max(f_band_alpha_Rad),...
-        filename);
+        fullfile(subfolderPath, filename));
 
 %% create RFstruct
 create_RF_struct
-save([RFstruct.filename '_RF_struct'])
+save(fullfile(subfolderPath, [RFstruct.filename '_RF_struct']))
 
 %% export to ParaVision
-export_RF_PV
+export_RF_PV(RFstruct, subfolderPath)
 
 %% write JSON file
-export_RF_json
+export_RF_json(RFstruct, subfolderPath)
