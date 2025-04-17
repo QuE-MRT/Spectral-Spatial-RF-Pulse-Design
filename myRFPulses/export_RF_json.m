@@ -1,48 +1,38 @@
-% MATLAB Script: Export Spatial Spectral Pulse Shapes to JSON Dictionary
+function export_RF_json(RFstruct, path)
+%EXPORT_RF_JSON Exports RF pulse data to a JSON file.
 %
-% Description:
-% This script processes spatial spectral pulse shapes and exports them
-% into a JSON dictionary file. 
+%   export_RF_json(RFstruct, path) exports the RF pulse data contained in the
+%   RFstruct to a JSON file in the specified 'path'.
 %
-% Features:
-% - Converts pulse shape data into a structured JSON format.
-% - Customizable for specific dictionary key-value mappings.
+%   Inputs:
+%       RFstruct: A struct created using the "create_RF_struct" script
 %
-% Author: Christoph A. Müller
-% Date: 17.01.2025
-% Version: 1.0
-%
-% Usage:
-% 1. Run pulse generate script and create_RF_struct.m first
-% 2. Run the script in MATLAB.
-% 3. The JSON file will be saved in the specified output directory.
+%       path: A string specifying the directory where the JSON file will be created.
 
-% Create JSON file name
-filename_json = [RFstruct.filename, '.json'];
+    % Create JSON file name
+    filename_base = RFstruct.filename;
+    filename_json = [filename_base, '.json'];
 
-% create JSONstruct
-JSONstruct.filename = RFstruct.filename;
-JSONstruct.desc = RFstruct.desc;
-JSONstruct.rf_asym = 0.5;
-JSONstruct.rf_dur_fix.dur = RFstruct.shapes.shape_duration_us; % [us]
-JSONstruct.rf_dur_fix.fix = true; 
-JSONstruct.rf_abs = RFstruct.shapes.shape_rf_magnitude / 100 * RFstruct.shapes.shape_rf_max_uT; % [uT]
-JSONstruct.rf_phs = deg2rad(RFstruct.shapes.shape_rf_phase_degree); % [rad]
-JSONstruct.gradz_v = RFstruct.shapes.shape_grad_mTm; % [mT/m]
-JSONstruct.gradz_t = RFstruct.shapes.shape_timesamples_us; % [us]
-    
-% write string from JSONstruct
-string = jsonencode(JSONstruct,"ConvertInfAndNaN",true);
+    % create JSONstruct
+    JSONstruct.filename = filename_base;
+    JSONstruct.desc = RFstruct.desc;
+    JSONstruct.rf_asym = 0.5;
+    JSONstruct.rf_dur_fix.dur = RFstruct.shapes.duration_us; % [us]
+    JSONstruct.rf_dur_fix.fix = true;
+    JSONstruct.rf_abs = RFstruct.shapes.rf_mag_percent / 100 * RFstruct.shapes.rf_max_uT; % [uT]
+    JSONstruct.rf_phs = RFstruct.shapes.rf_phs_rad; % [rad]
+    JSONstruct.gradz_v = RFstruct.shapes.grad_mTm; % [mT/m]
+    JSONstruct.gradz_t = RFstruct.shapes.timepoints_us; % [us]
 
-% Replace desc to _desc and filename to _filename 
-% (matlab can not create <sth>._name field names)
-string = strrep(string, 'desc', '_desc');
-string = strrep(string, 'filename', '_filename');
+    % write string from JSONstruct
+    string = jsonencode(JSONstruct,"ConvertInfAndNaN",true, 'PrettyPrint', true);
 
-% write file
-file_id = fopen(filename_json, 'w');
-fprintf(file_id, '%s',string);
-fclose(file_id);
+    % Construct the full path for the JSON file
+    fullFilePath = fullfile(path, filename_json);
 
-% finished to be loaded in gammaSTAR
+    % write file
+    file_id = fopen(fullFilePath, 'w');
+    fprintf(file_id, '%s',string);
+    fclose(file_id);
 
+end
