@@ -51,7 +51,7 @@ function export_RF_PV(RFstruct, path)
         '##$SHAPE_MODE= 0';
         sprintf('##MAXB1 = %.5e uT',RFstruct.shapes.rf_max_uT);
         sprintf('##NPOINTS= %d',RFstruct.shapes.num_samples);
-        sprintf('##DURATION= %.5e ms',RFstruct.shapes.duration_us * 1e3);
+        sprintf('##DURATION= %.5e ms',RFstruct.shapes.duration_us * 1e-3);
         sprintf('##NUCLEUS= %s',RFstruct.opts.SS_OPTs{1,2});
         sprintf('##FIELD= %.5e T',RFstruct.opts.f_B0_Gauss*1e-4);
         sprintf('##MAXGRAD= %.5e mT/m',RFstruct.opts.SS_OPTs{2,2}*10);
@@ -77,7 +77,7 @@ function export_RF_PV(RFstruct, path)
     meta_File = fopen( ...
         fullfile(path_waveDir,sprintf('%s.meta',RFstruct.filename)),'w');
     fprintf(meta_File,'%.6e %.6e %d', ...
-        RFstruct.shapes.duration_us*1e3, ...
+        RFstruct.shapes.duration_us*1e-3, ...
         RFstruct.shapes.rf_shape_integral, ...
         RFstruct.shapes.num_samples);
     fclose(meta_File);
